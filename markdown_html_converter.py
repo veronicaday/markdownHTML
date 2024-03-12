@@ -14,13 +14,15 @@ def create_arg_parser():
     return parser
 
 
-# Generator for reading the next line of the file. Does not pull entire file into memory
+# Generator for reading the next line of the file.
+# Does not pull entire file into memory, but reads line by line
 def read_next_line(markdown_filename: str):
     with open(markdown_filename, encoding="utf-8") as file:
         while line := file.readline():
             yield line
 
 
+# Returns the line including the proper header tags
 def convert_markdown_header(line: str) -> str:
     i = 0
     count_header = 0
@@ -28,6 +30,7 @@ def convert_markdown_header(line: str) -> str:
         i += 1
         count_header += 1
 
+    # cannot have <h7> or higher
     if count_header >= 7:
         return convert_markdown_paragraph(line)
     if line[i] != ' ':
@@ -38,15 +41,17 @@ def convert_markdown_header(line: str) -> str:
     return f"{header_open}{line[i+1:]}{header_close}"
 
 
+# Returns the line including paragraph tags
 def convert_markdown_paragraph(line: str) -> str:
     return f"<p>{line}</p>"
 
 
+# Returns the line including <a> tags with the href set
 def convert_markdown_hyperlink(link_text: str, url_hyperlink: str) -> str:
     return f'<a href="{url_hyperlink}">{link_text}</a>'
 
 
-# Looks for any hyperlinks and adds appropriate html tags
+# Looks for any hyperlinks and adds appropriate html tags if found
 def convert_markdown_hyperlinks(line: str) -> str:
     def find_link_text_end(link_start: int) -> int:
         link_end = link_start
@@ -96,23 +101,33 @@ def convert_markdown_line(line: str) -> str:
 
 
 # Writes string to html file
+# If this is the first time we are writing to the file, assume we want to overwrite existing content
+# otherwise we want to append
 def write_to_html_file(line: str, output_filename: str, first_write: bool = False):
-    # if output file does not exist, create it
-    # open file and write line; close file
     mode = 'w+' if first_write else 'a+'
     with open(output_filename, mode, encoding="utf-8") as file:
-        line += "\n" if not first_write else ''
         file.write(line)
 
 
+# Converts the Markdown File to HTML File
+# If error occurs, will print to console and attempt to continue writing subsequent lines
 def convert_markdown_file(markdown_filename: str, output_filename: str, print_output: bool = False):
-    # create or wipe file
+    # create if file does not exist, otherwise wipe current file contents
     write_to_html_file('', output_filename, first_write=True)
     for line in read_next_line(markdown_filename):
-        converted = convert_markdown_line(line.rstrip())
-        write_to_html_file(converted, output_filename)
-        if print_output:
-            print(converted)
+        try:
+            converted = convert_markdown_line(line.rstrip())
+        except Exception as e:
+            print(f"ERROR: Could not convert markdown line: {line}", e)
+            continue
+
+        try:
+            write_to_html_file(f"{converted}\n", output_filename)
+            if print_output:
+                print(converted)
+        except Exception as e:
+            print(f"ERROR: Could not write to file html line: {converted}", e)
+            continue
 
 
 def create_html_filename(input_file_path: str, output_filename: Optional[str]) -> str:
