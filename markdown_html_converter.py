@@ -40,8 +40,45 @@ def convert_markdown_paragraph(line: str) -> str:
     return f"<p>{line}</p>"
 
 
+def convert_markdown_hyperlink(link_text: str, url_hyperlink: str) -> str:
+    return f'<a href="{url_hyperlink}">{link_text}</a>'
+
+
+# Looks for any hyperlinks and adds appropriate html tags
 def convert_markdown_hyperlinks(line: str) -> str:
+    def find_link_text_end(link_start: int) -> int:
+        link_end = link_start+1
+        while link_end < len(line) and line[link_end] != ']':
+            link_end += 1
+        return link_end
+
+    def find_url_end(url_start: int) -> int:
+        url_end = url_start+1
+        while url_end < len(line) and line[url_end] != ')':
+            if url_end == ' ':
+                return len(line)
+            url_end += 1
+        return url_end
+
+    i = 0
+    while i < len(line):
+        if line[0] == '[':
+            link_start = i
+            link_end = find_link_text_end(link_start)
+
+            if link_end and link_end + 1 < len(line) and line[link_end + 1] == '(':
+                url_start = link_end + 1
+                url_end = find_url_end(url_start)
+            else:
+                continue
+            if url_end < len(line):
+                link_text = line[link_start:link_end+1]
+                url_text = line[url_start:url_end + 1]
+                line = line[:url_end] + convert_markdown_hyperlink(link_text, url_text) + line[url_end+1:]
+                i = url_end + 1
+        i += 1
     return line
+
 
 # Accepts a string of markdown and returns a string of HTML
 def convert_markdown_line(line: str) -> str:
@@ -52,34 +89,7 @@ def convert_markdown_line(line: str) -> str:
         line = convert_markdown_header(line)
     else:
         line = convert_markdown_paragraph(line)
-    return line
-    # i = 0
-    # while i < len(line):
-    #     if char == '[':
-    #         link_start = i
-    #         link_end = i+1
-    #         while link_end < len(line) and line[link_end] != ']':
-    #             link_end += 1
-    #         if link_end and link_end+1 < len(line) and line[link_end+1] == '(':
-    #             url_start = link_end+1
-    #             url_end = link_end+2
-    #             while url_end < len(line) and line[url_end] != ')':
-    #                 if url_end == ' ':
-    #                     break
-    #                 url_end += 1
-    #         else:
-    #             continue
-    #         if url_end < len(line):
-    #             link_text = line[link_start:link_end+1]
-    #             url_text = line[url_start:url_end + 1]
-    #             line = line[:url_end] + convert_markdown_hyperlink(link_text, url_text) + line[url_end+1:]
-    #             i = url_end + 1
-    #     i += 1
-
-
-
-
-
+    return convert_markdown_hyperlinks(line)
 
 
 # Writes string to html file
@@ -102,6 +112,7 @@ if __name__ == '__main__':
         print("Error: markdown file not found")
 
     # TODO: create new file if not provided
+    # TODO: add print file option
     output_file = parsed_args.htmlFile
     convert_markdown_file(parsed_args.markdownFile, parsed_args.htmlFile)
     print(f"Successfully converted {parsed_args.markdownFile} to html: {parsed_args.htmlFile}")
