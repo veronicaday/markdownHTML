@@ -37,7 +37,7 @@ def convert_markdown_header(line: str) -> str:
         return convert_markdown_paragraph(line)
 
     header_open = f'<h{count_header}>'
-    header_close = f'/<h{count_header}>'
+    header_close = f'</h{count_header}>'
     return f"{header_open}{line[i+1:]}{header_close}"
 
 

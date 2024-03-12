@@ -1,0 +1,26 @@
+<h1>Header one</h1>
+<h2>Header two</h2>
+<h3>Header three</h3>
+<h4>Header four</h4>
+<h5>Header five</h5>
+<h5># Header five with a hashtag</h5>
+<h6>Header six</h6>
+<p>####### not a header</p>
+
+<p>#not a header</p>
+
+<p>Hello # there # this ## should not be ### a title</p>
+
+<p>This is an example of an empty url link <a href="">with an inline link</a>. Pretty cool!</p>
+
+<h2>This is a header [with a malformed link](http://yahoo.com</h2>
+
+<p>This is another one with a malformed link](http://yahoo.com)</p>
+
+<p>And another one [with a malformed link(http://yahoo.com)</p>
+
+<p>Last one [with a malformed link] http://yahoo.com)</p>
+
+<p>JK here's another one [with a malformed link] (http://yahoo.com)</p>
+
+<p>This should be regular brackets [text]</p>
