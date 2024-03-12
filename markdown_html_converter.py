@@ -135,7 +135,7 @@ def create_html_filename(input_file_path: str, output_filename: Optional[str]) -
         base_name = os.path.basename(input_file_path)
         return os.path.splitext(base_name)[0]
 
-    output_filename = output_filename or "html_output.html"
+    output_filename = output_filename or "html.html"
     new_file_name = f"{get_filename_from_path(input_file_path)}_{output_filename}"
     directory_path = os.path.dirname(input_file_path)
     return os.path.join(directory_path, new_file_name)
