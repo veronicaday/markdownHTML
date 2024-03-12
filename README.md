@@ -1,8 +1,8 @@
 # Implement a Markdown => HTML converter
-Reads a text file that uses markdown formatting and writes converted html to a new file.
+Reads a text file that uses Markdown formatting and writes converted html to a new file.
 
 ## Examples:
-Sample markdown:
+Sample Markdown:
 ```
 Hello!
 

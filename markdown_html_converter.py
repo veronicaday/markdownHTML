@@ -47,13 +47,13 @@ def convert_markdown_hyperlink(link_text: str, url_hyperlink: str) -> str:
 # Looks for any hyperlinks and adds appropriate html tags
 def convert_markdown_hyperlinks(line: str) -> str:
     def find_link_text_end(link_start: int) -> int:
-        link_end = link_start+1
+        link_end = link_start
         while link_end < len(line) and line[link_end] != ']':
             link_end += 1
         return link_end
 
     def find_url_end(url_start: int) -> int:
-        url_end = url_start+1
+        url_end = url_start
         while url_end < len(line) and line[url_end] != ')':
             if url_end == ' ':
                 return len(line)
@@ -62,20 +62,21 @@ def convert_markdown_hyperlinks(line: str) -> str:
 
     i = 0
     while i < len(line):
-        if line[0] == '[':
-            link_start = i
+        if line[i] == '[':
+            link_start = i+1
             link_end = find_link_text_end(link_start)
 
             if link_end and link_end + 1 < len(line) and line[link_end + 1] == '(':
-                url_start = link_end + 1
+                url_start = link_end + 2
                 url_end = find_url_end(url_start)
             else:
+                i+=1
                 continue
             if url_end < len(line):
-                link_text = line[link_start:link_end+1]
-                url_text = line[url_start:url_end + 1]
-                line = line[:url_end] + convert_markdown_hyperlink(link_text, url_text) + line[url_end+1:]
-                i = url_end + 1
+                link_text = line[link_start:link_end]
+                url_text = line[url_start:url_end]
+                line = line[:i] + convert_markdown_hyperlink(link_text, url_text) + line[url_end+1:]
+                i = url_end
         i += 1
     return line
 
