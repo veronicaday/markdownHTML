@@ -1,20 +1,22 @@
 import argparse
 import sys
 import os
+from typing import Optional
 
 
 #https://stackoverflow.com/questions/14360389/getting-file-path-from-command-line-argument-in-python
 def create_arg_parser():
     # Creates and returns the ArgumentParser object
     parser = argparse.ArgumentParser(description='Convert a markdown text file into an html file')
-    parser.add_argument('markdownFile', help='Path to the markdown text file.')
-    parser.add_argument('--htmlFile', help='Path to where to store the output html file.')
+    parser.add_argument('-markdownFile', dest='markdown_file', required=True, help='Path to the markdown text file.')
+    parser.add_argument('-htmlFile', dest="html_file", required=False, help='Path to where to store the output html file.')
+    parser.add_argument('--p', dest="print_opt", action="store_true", required=False, help='Include to print line by line output to console.')
     return parser
 
 
 # Generator for reading the next line of the file. Does not pull entire file into memory
 def read_next_line(markdown_filename: str):
-    with open(markdown_filename) as file:
+    with open(markdown_filename, encoding="utf-8") as file:
         while line := file.readline():
             yield line
 
@@ -94,27 +96,45 @@ def convert_markdown_line(line: str) -> str:
 
 
 # Writes string to html file
-def write_to_html_file(line: str, output_filename: str):
+def write_to_html_file(line: str, output_filename: str, first_write: bool = False):
     # if output file does not exist, create it
     # open file and write line; close file
-    print(line)
+    mode = 'w+' if first_write else 'a+'
+    with open(output_filename, mode, encoding="utf-8") as file:
+        line += "\n" if not first_write else ''
+        file.write(line)
 
 
-def convert_markdown_file(markdown_filename: str, output_filename: str):
+def convert_markdown_file(markdown_filename: str, output_filename: str, print_output: bool = False):
+    # create or wipe file
+    write_to_html_file('', output_filename, first_write=True)
     for line in read_next_line(markdown_filename):
         converted = convert_markdown_line(line.rstrip())
         write_to_html_file(converted, output_filename)
+        if print_output:
+            print(converted)
+
+
+def create_html_filename(input_file_path: str, output_filename: Optional[str]) -> str:
+    def get_filename_from_path(path: str) -> str:
+        base_name = os.path.basename(input_file_path)
+        return os.path.splitext(base_name)[0]
+
+    output_filename = output_filename or "html_output.html"
+    new_file_name = f"{get_filename_from_path(input_file_path)}_{output_filename}"
+    directory_path = os.path.dirname(input_file_path)
+    return os.path.join(directory_path, new_file_name)
 
 
 if __name__ == '__main__':
     arg_parser = create_arg_parser()
     parsed_args = arg_parser.parse_args(sys.argv[1:])
-    if not os.path.exists(parsed_args.markdownFile):
-        print("Error: markdown file not found")
+    if not os.path.exists(parsed_args.markdown_file):
+        print("ERROR: markdown file not found.")
+        sys.exit()
 
-    # TODO: create new file if not provided
-    # TODO: add print file option
-    output_file = parsed_args.htmlFile
-    convert_markdown_file(parsed_args.markdownFile, parsed_args.htmlFile)
-    print(f"Successfully converted {parsed_args.markdownFile} to html: {parsed_args.htmlFile}")
+    input_file = parsed_args.markdown_file
+    output_file = create_html_filename(input_file, parsed_args.html_file)
+    convert_markdown_file(parsed_args.markdown_file, parsed_args.html_file, parsed_args.print_opt)
+    print(f"SUCCESS: Converted {parsed_args.markdown_file} to: {output_file}")
 
