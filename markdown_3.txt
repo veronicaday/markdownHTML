@@ -1,0 +1,26 @@
+# Header one
+## Header two
+### Header three
+#### Header four
+##### Header five
+##### # Header five with a hashtag
+###### Header six
+####### not a header
+
+#not a header
+
+Hello # there # this ## should not be ### a title
+
+This is an example of an empty url link [with an inline link](). Pretty cool!
+
+## This is a header [with a malformed link](http://yahoo.com
+
+This is another one with a malformed link](http://yahoo.com)
+
+And another one [with a malformed link(http://yahoo.com)
+
+Last one [with a malformed link] http://yahoo.com)
+
+JK here's another one [with a malformed link] (http://yahoo.com)
+
+This should be regular brackets [text]
