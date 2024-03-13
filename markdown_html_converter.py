@@ -135,10 +135,10 @@ def create_html_filename(input_file_path: str, output_filename: Optional[str]) -
         base_name = os.path.basename(input_file_path)
         return os.path.splitext(base_name)[0]
 
-    output_filename = output_filename or "html.html"
-    new_file_name = f"{get_filename_from_path(input_file_path)}_{output_filename}"
+
+    output_filename = output_filename or f"{get_filename_from_path(input_file_path)}_html.html"
     directory_path = os.path.dirname(input_file_path)
-    return os.path.join(directory_path, new_file_name)
+    return os.path.join(directory_path, output_filename)
 
 
 if __name__ == '__main__':
@@ -150,6 +150,6 @@ if __name__ == '__main__':
 
     input_file = parsed_args.markdown_file
     output_file = create_html_filename(input_file, parsed_args.html_file)
-    convert_markdown_file(parsed_args.markdown_file, parsed_args.html_file, parsed_args.print_opt)
+    convert_markdown_file(input_file, output_file, parsed_args.print_opt)
     print(f"SUCCESS: Converted {parsed_args.markdown_file} to: {output_file}")
 
