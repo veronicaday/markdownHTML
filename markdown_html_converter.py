@@ -151,5 +151,5 @@ if __name__ == '__main__':
     input_file = parsed_args.markdown_file
     output_file = create_html_filename(input_file, parsed_args.html_file)
     convert_markdown_file(input_file, output_file, parsed_args.print_opt)
-    print(f"SUCCESS: Converted {parsed_args.markdown_file} to: {output_file}")
+    print(f"SUCCESS: Converted {input_file} to: {output_file}")
 
